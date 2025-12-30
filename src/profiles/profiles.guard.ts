@@ -7,6 +7,6 @@ export class ProfilesGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     // implement authorization
-    return false;
+    return true;
   }
 }

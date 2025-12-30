@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ProfilesModule } from './profiles/profiles.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Profile } from './profiles/proriles.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USER,
       password: process.env.DB_USER_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [],
+      entities: [Profile],
       synchronize: true, // should'nt be used in production
     }),
     ProfilesModule,

@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UUID, randomUUID } from 'crypto';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Profile } from './proriles.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProfilesService {
@@ -23,47 +26,46 @@ export class ProfilesService {
     },
   ];
 
-  findAll() {
-    return this.profiles;
+  constructor(
+    @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+  ) {}
+
+  async findAll() {
+    return await this.profileRepository.find();
   }
 
-  findOne(id: string) {
-    const found = this.profiles.find((profile) => profile.id === id);
+  async findOne(id: string) {
+    const found = await this.profileRepository.findOneBy({ id: id });
     if (!found) {
       throw new NotFoundException(`Profile with ID ${id} not found`);
     }
     return found;
   }
-  create(createProfileDto: CreateProfileDto) {
-    const created = {
-      id: randomUUID(),
-      name: createProfileDto.name,
-      description: createProfileDto.description,
-    };
-    this.profiles.push(created);
-    return created;
+  async create(createProfileDto: CreateProfileDto) {
+    return await this.profileRepository.save(
+      this.profileRepository.create({ ...createProfileDto }),
+    );
   }
 
-  // findで実装しなおす
-  update(id: string, updateProfileDto: UpdateProfileDto): UpdateProfileDto {
-    const found = this.profiles.find((profile) => profile.id === id);
+  async update(id: string, updateProfileDto: UpdateProfileDto) {
+    const found = await this.profileRepository.findOneBy({ id: id });
 
     if (!found) {
       throw new NotFoundException(`Profile with ID ${id} not found`);
     }
 
-    found.name = updateProfileDto.name;
-    found.description = updateProfileDto.description;
-    return found;
+    return await this.profileRepository.save(
+      this.profileRepository.merge(found, updateProfileDto),
+    );
   }
 
-  remove(id: string) {
-    const index = this.profiles.findIndex((profile) => profile.id === id);
+  async remove(id: string) {
+    const found = await this.profileRepository.findOneBy({ id: id });
 
-    if (index === -1) {
+    if (!found) {
       throw new NotFoundException(`Profile with ID ${id} not found`);
     }
 
-    delete this.profiles[index];
+    return await this.profileRepository.remove(found);
   }
 }

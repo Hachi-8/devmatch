@@ -10,14 +10,13 @@ import {
   HttpStatus,
   HttpException,
   NotFoundException,
-  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfilesService } from './profiles.service';
-import type { UUID } from 'crypto';
 import { ProfilesGuard } from './profiles.guard';
+import { ParseUlidPipe } from 'src/common/pipes/parse-ulid.pipe';
 
 @Controller('profiles')
 export class ProfilesController {
@@ -30,7 +29,7 @@ export class ProfilesController {
 
   @Get('/:id')
   @UseGuards(ProfilesGuard)
-  findOne(@Param('id', ParseUUIDPipe) id: UUID) {
+  findOne(@Param('id', ParseUlidPipe) id: string) {
     return this.profilesService.findOne(id);
   }
 
@@ -50,7 +49,7 @@ export class ProfilesController {
 
   @Put(':id')
   update(
-    @Param('id', ParseUUIDPipe) id: UUID,
+    @Param('id', ParseUlidPipe) id: string,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     return this.profilesService.update(id, updateProfileDto);
@@ -58,7 +57,7 @@ export class ProfilesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseUUIDPipe) id: UUID) {
+  remove(@Param('id', ParseUlidPipe) id: string) {
     this.profilesService.remove(id);
   }
 
