@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app          # ホストのファイルをコンテナに同期（ホットリロード用）
+      - /app/node_modules # node_modulesはホストのものを上書きしないように除外
+    depends_on:
+      - db
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_DATABASE: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_USER_PASSWORD}
+  db:
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_USER_PASSWORD}
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    platform: linux/x86_64
+    environment:
+      PMA_HOST: db 
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_USER_PASSWORD}
+    ports:
+      - '8080:80'
+    depends_on:
+      - db
+
+volumes:
+  db_data:
